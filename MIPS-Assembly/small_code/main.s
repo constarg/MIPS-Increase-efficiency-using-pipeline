@@ -14,16 +14,41 @@ main:
     dsll  R4, R4, 3         # Translate the n_size to n addresses and store it in R4.
     dadd  R5, R4, R2        # Find the last address of array_a and store it in R5.
     dadd  R1, R4, R3        # Find the last address of array_b and store it in R6.
-    loop_i:
-    lw    R6, 0(R2)         # Store in R6 the value of A[i].
-    daddi R2, R2, 1         # Increase the i.
-    loop_j:
-    lw    R7, 0(R3)         # Store in R7 the value of B[i]
-    daddi R3, R3, 1         # increase the j.
+    dadd  R6, R0, R2        # Address to look for A[j].
+    dadd  R7, R0, R3        # Address to look for B[i].
+    daddi R8, R1, 8         # Base address for AM[].
+    dadd  R9, R8, R4        # Base address for BM[].
 
-    bne   R3, R1, loop_j    # if j != n_size go to loop_j
-    dsub  R3, R3, R4        # Restore array_b to the base address.
-    bne   R2, R5, loop_i	# if i != n_size go to loop_i.
-    
+    loop_i:
+    lw     R10, 0(R2)       # Get the value of A[i] and store it in R10.
+    lw     R11, 0(R7)       # Get the value of B[i] and store it in R11.
+    lw     R12, 0(R8)       # Get the value of AM[i].
+    lw     R13, 0(R9)       # Get the value of BM[i].
+    daddi  R2, R2, 8        # Increace i for A[i].
+    daddi  R7, R7, 8        # Increace i for B[i].
+    daddi  R8, R8, 8        # Increace i for AM[i].
+    daddi  R9, R9, 8        # Increace i for BM[i].
+
+    loop_j:
+    lw    R14, 0(R3)        # Get the value of B[j] and store it in R14.
+    lw    R15, 0(R6)        # Get the value of A[j] and store it in R15.
+    daddi  R3, R3, 8        # Increace j for B[j].
+    daddi  R6, R6, 8        # Increace j for A[j].
+    dmul  R15, R10, R14     # A[i] * B[j].     
+    slt   R17, R12, R15     # if (AM[i] < (A[i] * B[j])).
+    beq   R17, R0, nch_am_i # if the above statement is not true, then don't store in AM[i].
+    ch_am_i:                # Change AM[i].
+    sw    R15, -8(R8)        # AM[i] = A[i] * B[j].
+    nch_am_i:               # Do not change AM[i].
+    dmul  R15, R11, R15     # B[i] * A[j].
+    slt   R17, R13, R15     # if (BM[i] < (B[i] * A[j]))
+    beq   R17, R0, nch_bm_j # if the above statement is not true, then don't store in BM[i]. 
+    ch_bm_j:                # Change BM[i].
+    sw    R15, 0(R9)        # BM[i] = B[i] * A[j];
+    nch_bm_j:               # Do not change BM[i].
+    bne   R3, R1, loop_j    # if j != n.
+    dsub  R3, R3, R4        # reset B[j] to the base address.
+    dsub  R6, R6, R4        # reset A[j] to the base address.
+    bne   R2, R5, loop_i    # if i != n.
 
     halt
