@@ -19,6 +19,7 @@ main:
     daddi R8, R1, 8         # Base address for AM[].
     dadd  R9, R8, R4        # Last address of AM[].
     daddi R9, R9, 8         # Base address for BM[].
+
     loop_i:
     lw    R10, 0(R2)        # Get the value of A[i] and store it in R10.
     lw    R11, 0(R7)        # Get the value of B[i] and store it in R11.
@@ -29,25 +30,25 @@ main:
     dmul  R16, R10, R14     # A[i] * B[j].     
     slt   R17, R12, R16     # if (AM[i] < (A[i] * B[j])).
     beq   R17, R0, nch_am_i # if the above statement is not true, then don't store in AM[i].
-    lw    R13, 0(R9)        # Get the value of BM[i]. Changed to work with delay slot.
+    lw    R13, 0(R9)        # Get the value of BM[i].  Changed for delay slot.
     ch_am_i:                # Change AM[i].
     sw    R16, 0(R8)        # AM[i] = A[i] * B[j].
     nch_am_i:               # Do not change AM[i].
     dmul  R15, R11, R15     # B[i] * A[j].
     slt   R17, R13, R15     # if (BM[i] < (B[i] * A[j]))
-    beq   R17, R0, nch_bm_j # if the above statement is not true, then don't store in BM[i]. 
-    daddi R3, R3, 8         # Increace j for B[j]. Changed to work with delay slot.
+    beq   R17, R0, nch_bm_j # if the above statement is not true, then don't store in BM[i].
+    daddi R3, R3, 8         # Increace j for B[j].  Changed for delay slot.
     ch_bm_j:                # Change BM[i].
     sw    R15, 0(R9)        # BM[i] = B[i] * A[j].
     nch_bm_j:               # Do not change BM[i].
     bne   R3, R1, loop_j    # if j != n.
-    daddi R6, R6, 8         # Increace j for A[j]. Changed to work with delay slot.
+    daddi R6, R6, 8         # Increace j for A[j].  Changed for delay slot.
     dsub  R3, R3, R4        # reset B[j] to the base address.
     dsub  R6, R6, R4        # reset A[j] to the base address.
     daddi R2, R2, 8         # Increace i for A[i].
     daddi R7, R7, 8         # Increace i for B[i].
     daddi R8, R8, 8         # Increace i for AM[i].
-    daddi R9, R9, 8         # Increace i for BM[i].
     bne   R2, R5, loop_i    # if i != n.
+    daddi R9, R9, 8         # Increace i for BM[i]. Changed for delay slot.
 
     halt
