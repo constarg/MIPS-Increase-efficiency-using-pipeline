@@ -14,6 +14,5 @@ int main() {
             if (AM[i] < (A[i] * B[j])) AM[i] = A[i] * B[j];
             if (BM[i] < (B[i] * A[j])) BM[i] = B[i] * A[j];
         }
-	}
-
+    }
 }
