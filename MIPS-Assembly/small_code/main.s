@@ -1,54 +1,55 @@
 .data
-n_size:  .word 16
-.space 8
-array_a: .word 2,-2, 4,-4, 6,-6, 8,-8,-9, 9,-7, 7,-5, 5,-3, 3
-.space 8
-array_b: .word 8, 7, 6, 5, 4, 3, 2, 1,-1,-2,-3,-4,-5,-6,-7,-8
 
-.text 
+size:    .word 16
+.space 8
+ arrayA:  .word 2,-2, 4,-4, 6,-6, 8,-8,-9, 9,-7, 7,-5, 5,-3, 3
+.space 8
+ arrayB:  .word 8, 7, 6, 5, 4, 3, 2, 1,-1,-2,-3,-4,-5,-6,-7,-8
+.space 8 
+arrayAM: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+.space 8
+arrayBM: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+
+    .text
 main:
-    daddi R1, R0, n_size    # Store the base address of size in R1.
-    daddi R2, R0, array_a   # Store the base address of array A in R2.
-    daddi R3, R0, array_b   # Store the base address of array B in R3.
-    lw    R4, 0(R1)         # Load the value of size in R4.
-    dsll  R4, R4, 3         # Translate the n_size to n addresses and store it in R4.
-    dadd  R5, R4, R2        # Find the last address of array_a and store it in R5.
-    dadd  R1, R4, R3        # Find the last address of array_b and store it in R6.
-    dadd  R6, R0, R2        # Address to look for A[j].
-    dadd  R7, R0, R3        # Address to look for B[i].
-    daddi R8, R1, 8         # Base address for AM[].
-    dadd  R9, R8, R4        # Last address of AM[].
-    daddi R9, R9, 8         # Base address for BM[].
-
-    loop_i:
-    lw    R10, 0(R2)        # Get the value of A[i] and store it in R10.
-    lw    R11, 0(R7)        # Get the value of B[i] and store it in R11.
-    loop_j:
-    lw    R12, 0(R8)        # Get the value of AM[i].
-    lw    R13, 0(R9)        # Get the value of BM[i].
-    lw    R14, 0(R3)        # Get the value of B[j] and store it in R14.
-    lw    R15, 0(R6)        # Get the value of A[j] and store it in R15.
-    dmul  R16, R10, R14     # A[i] * B[j].     
-    slt   R17, R12, R16     # if (AM[i] < (A[i] * B[j])).
-    beq   R17, R0, nch_am_i # if the above statement is not true, then don't store in AM[i].
-    ch_am_i:                # Change AM[i].
-    sw    R16, 0(R8)        # AM[i] = A[i] * B[j].
-    nch_am_i:               # Do not change AM[i].
-    dmul  R15, R11, R15     # B[i] * A[j].
-    slt   R17, R13, R15     # if (BM[i] < (B[i] * A[j]))
-    beq   R17, R0, nch_bm_j # if the above statement is not true, then don't store in BM[i]. 
-    ch_bm_j:                # Change BM[i].
-    sw    R15, 0(R9)        # BM[i] = B[i] * A[j].
-    nch_bm_j:               # Do not change BM[i].
-    daddi R3, R3, 8         # Increace j for B[j].
-    daddi R6, R6, 8         # Increace j for A[j].
-    bne   R3, R1, loop_j    # if j != n.
-    dsub  R3, R3, R4        # reset B[j] to the base address.
-    dsub  R6, R6, R4        # reset A[j] to the base address.
-    daddi R2, R2, 8         # Increace i for A[i].
-    daddi R7, R7, 8         # Increace i for B[i].
-    daddi R8, R8, 8         # Increace i for AM[i].
-    daddi R9, R9, 8         # Increace i for BM[i].
-    bne   R2, R5, loop_i    # if i != n.
-
-    halt
+   daddi  R1, R0,size       # Store the address of size in R1.
+   daddi  R2, R0,arrayA     # Store the address of A[i] in R2.
+   daddi  R3, R0,arrayB     # Store the address of B[i] in R3.
+   lw     R1, 0(R1)         # Load the size in R1.
+   dsll   R1, R1,3          # Translate the size into the addresses.
+   dadd   R4, R1,R2         # Find the last address of A[].
+   dadd   R5, R1,R3         # Find the last address of B[].
+   daddi  R6, R0, arrayAM   # Base address for AM[i].
+   daddi  R7, R0, arrayBM   # Base address for BM[i].
+   dadd   R8, R0,R2         # Store address of A[j] in R8.      
+   dadd   R9, R0,R3         # Store address of B[j] in R9.
+Loop_i:
+   lw     R10, 0(R2)        # Get the value of A[i].
+   lw     R11, 0(R3)        # Get the value of B[i].
+Loop_j:
+   lw     R12, 0(R8)        # Get the value of A[j].
+   lw     R13, 0(R9)        # Get the value of B[j].
+   lw     R14, 0(R6)        # Get the value of AM[i].
+   lw     R15, 0(R7)        # Get the value of BM[i].
+   dmul   R16, R10,R13      # Multiple A[i] and B[j] and store it in R16.
+   slt    R17, R14,R16      # if AM[i] < (A[i] * B[j]).
+   beq    R17, R0,false_am  # Check if the above statement is true or false.
+   sw     R16, 0(R6)        # if the statement is true, then store the value in the AM[i].
+false_am:                   # if the statemnt is false, then continue.
+   dmul   R18, R12,R11      # Multiple A[j] and B[i] and store it in R18.
+   slt    R19, R15,R18      # if BM[i] < A[j]*B[i].
+   beq    R19, R0, false_amm# Check if the above statement is true or false.
+   sw     R18, 0(R7)        # if the statement is true, then store the value in the BM[i].
+false_amm:                  # if the statemnt is false, then continue.
+   daddi  R8, R8, 8         # Increace the A[j].
+   daddi  R9, R9, 8         # Increase the B[j].
+   bne    R8, R4, Loop_j    # if j < n.
+   daddi  R8, R0, arrayA    # A[j].
+   daddi  R9, R0, arrayB    # B[j].
+   daddi  R2, R2, 8         # increase the A[i].
+   daddi  R3, R3, 8         # increase the B[i].
+   daddi  R6, R6, 8         # increase the AM[i].
+   daddi  R7, R7, 8         # increase the BM[i].
+   bne    R2, R4, Loop_i    # if i < n.
+   halt
