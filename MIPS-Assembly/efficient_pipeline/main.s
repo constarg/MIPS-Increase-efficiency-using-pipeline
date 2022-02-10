@@ -31,34 +31,34 @@ Loop_j:
    lw     R13, 0(R9)        # Get the value of B[j].
    lw     R14, 0(R6)        # Get the value of AM[i].
    dmul   R16, R10,R13      # Multiple A[i] and B[j] and store it in R16.
-   lw     R15, 0(R7)        # Get the value of BM[i].
+   lw     R15, 0(R7)        # Get the value of BM[i]. [Changed]
    slt    R17, R14,R16      # if AM[i] < (A[i] * B[j]).
-   lw     R12, 0(R8)        # Get the value of A[j].
+   lw     R12, 0(R8)        # Get the value of A[j]. [Changed]
    beq    R17, R0,false_am  # Check if the above statement is true or false.
    sw     R16, 0(R6)        # if the statement is true, then store the value in the AM[i].
 false_am:                   # if the statemnt is false, then continue.
    dmul   R18, R12,R11      # Multiple A[j] and B[i] and store it in R18.
-   lw     R20, 8(R8)        # Get the value of A[j + 1].
+   lw     R20, 8(R8)        # Get the value of A[j + 1]. [Changed]
    slt    R19, R15,R18      # if BM[i] < A[j]*B[i].
-   lw     R21, 8(R9)        # Get the value of B[j + 1].
+   lw     R21, 8(R9)        # Get the value of B[j + 1]. [Changed]
    beq    R19, R0, false_amm# Check if the above statement is true or false.
    sw     R18, 0(R7)        # if the statement is true, then store the value in the BM[i].
 false_amm:                  # if the statemnt is false, then continue.
    lw     R22, 0(R6)        # Get the value of AM[i].
-   dmul   R24, R10,R21      # Multiple A[i] and B[j] and store it in R16.
-   lw     R23, 0(R7)        # Get the value of BM[i].
-   slt    R25, R22,R24      # if AM[i] < (A[i] * B[j]).
-   dmul   R26, R20,R11      # Multiple A[j] and B[i] and store it in R18.
+   dmul   R24, R10,R21      # Multiple A[i] and B[j + 1] and store it in R24.
+   lw     R23, 0(R7)        # Get the value of BM[i]. [Changed]
+   slt    R25, R22,R24      # if AM[i] < (A[i] * B[j + 1]).
+   dmul   R26, R20,R11      # Multiple A[j + 1] and B[i] and store it in R26. [Changed]
    beq    R25, R0,false_2   # Check if the above statement is true or false.
    sw     R24, 0(R6)        # if the statement is true, then store the value in the AM[i].
 false_2:                    # if the statemnt is false, then continue.
-   slt    R27, R23,R26      # if BM[i] < A[j]*B[i].
+   slt    R27, R23,R26      # if BM[i] < A[j + 1]*B[i].
    nop
    beq    R27, R0, false_a2 # Check if the above statement is true or false.
    sw     R26, 0(R7)        # if the statement is true, then store the value in the BM[i].
 false_a2:                   # if the statemnt is false, then continue.
-   daddi  R8, R8, 16        # Increace the A[j].
-   daddi  R9, R9, 16        # Increase the B[j].
+   daddi  R8, R8, 16        # Increace the A[j] addresses.
+   daddi  R9, R9, 16        # Increase the B[j] addresses.
    bne    R8, R4, Loop_j    # if j < n.
    daddi  R8, R0, arrayA    # A[j].
    daddi  R9, R0, arrayB    # B[j].
