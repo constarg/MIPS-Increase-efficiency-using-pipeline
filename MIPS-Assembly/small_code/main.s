@@ -17,7 +17,7 @@ main:
    daddi  R2, R0,arrayA     # Store the address of A[i] in R2.
    daddi  R3, R0,arrayB     # Store the address of B[i] in R3.
    lw     R1, 0(R1)         # Load the size in R1.
-   dsll   R1, R1,3          # Translate the size into the addresses.
+   dsll   R1, R1,3          # Translate the size into the addresses. ( raw stall )
    dadd   R4, R1,R2         # Find the last address of A[].
    dadd   R5, R1,R3         # Find the last address of B[].
    daddi  R6, R0, arrayAM   # Base address for AM[i].
@@ -33,12 +33,12 @@ Loop_j:
    lw     R14, 0(R6)        # Get the value of AM[i].
    lw     R15, 0(R7)        # Get the value of BM[i].
    dmul   R16, R10,R13      # Multiple A[i] and B[j] and store it in R16.
-   slt    R17, R14,R16      # if AM[i] < (A[i] * B[j]).
+   slt    R17, R14,R16      # if AM[i] < (A[i] * B[j]). ( raw stall )
    beq    R17, R0,false_am  # Check if the above statement is true or false.
    sw     R16, 0(R6)        # if the statement is true, then store the value in the AM[i].
 false_am:                   # if the statemnt is false, then continue.
    dmul   R18, R12,R11      # Multiple A[j] and B[i] and store it in R18.
-   slt    R19, R15,R18      # if BM[i] < A[j]*B[i].
+   slt    R19, R15,R18      # if BM[i] < A[j]*B[i]. ( raw stall )
    beq    R19, R0, false_amm# Check if the above statement is true or false.
    sw     R18, 0(R7)        # if the statement is true, then store the value in the BM[i].
 false_amm:                  # if the statemnt is false, then continue.
