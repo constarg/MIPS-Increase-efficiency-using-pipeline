@@ -1,5 +1,5 @@
 # Introduction 
-This repo was created for an exercise on the university.
+This repo was created for an exercise for the university.
 
 # Details of exercise
 This repo consists of 3 codes. The first code is small but not very efficient for the processor. The second code is the same but with a description about the <b>CPI ( Clock Per Instruction )</b> and other calculations that are relative to the program's efficiency. The third code is a reformat of the first code to help <b>MIPS</b> execute the same instructions but more efficiently using <b>pipeline technology</b>. This repo contains and the C code of the Assembly, for a better understanding of the code. Also in this example, we don't care about how we can improve the code quality ( by making it smarter or removing lines etc ) we only care about how to make this exact code more efficient using the <b>pipeline technology</b>.
